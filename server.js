@@ -1,4 +1,4 @@
-﻿require('dotenv').config();
+require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
@@ -31,10 +31,14 @@ app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
 
-  // Allows Tailwind CDN during development
+  // Updated CSP to allow new UI dependencies: FontAwesome, Google Fonts
   res.setHeader(
     'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com;"
+    "default-src 'self'; " +
+    "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; " +
+    "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; " +
+    "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; " +
+    "img-src 'self' data:;"
   );
 
   // Do NOT use HSTS on localhost HTTP development server
@@ -110,8 +114,8 @@ const ai = new GoogleGenAI({
   Fallback model if the primary is temporarily unavailable.
 */
 const MODELS = [
-  'gemini-3.5-flash-lite',
-  'gemini-3.1-flash-lite'
+  'gemini-3.1-flash-lite',
+  'gemini-3.8-flash',
 ];
 
 /* =========================================================
@@ -153,7 +157,7 @@ app.get('/health', (req, res) => {
 
 app.post('/api/generate', async (req, res) => {
   try {
-    const { prompt } = req.body;
+    const { prompt, temperature } = req.body;
 
     /* -------------------------
        VALIDATE PROMPT
@@ -196,7 +200,11 @@ app.post('/api/generate', async (req, res) => {
 
           response = await ai.models.generateContent({
             model: model,
-            contents: prompt
+            contents: prompt,
+            generationConfig: {
+              temperature: parseFloat(temperature) || 0.7,
+              maxOutputTokens: 2048
+            }
           });
 
           if (response?.text) {
