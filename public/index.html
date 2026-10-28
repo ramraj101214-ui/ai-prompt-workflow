@@ -1,72 +1,137 @@
 <!DOCTYPE html>
-<!-- index.html -->
-<html lang="en" data-theme="dark"><head>
+<html lang="en" data-theme="dark">
+<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Assistant AI Workflow</title>
+  <title>Smart Assistant AI Workflow - Prompt Engine</title>
   
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-  <!-- External Design Tokens and Theme Stylesheets -->
-  <link rel="stylesheet" href="styles/tokens.css">
+  <!-- External Stylesheets -->
   <link rel="stylesheet" href="styles/theme.css">
-
-  <style>
-    .loader {
-      border: 3px solid rgba(255, 255, 255, 0.1);
-      border-radius: 50%;
-      border-top: 3px solid var(--btn-primary-bg, #9D7BFF);
-      width: 24px;
-      height: 24px;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-  </style>
 </head>
-<body class="h-screen flex overflow-hidden bg-bg-base text-text-primary">
-  
-  <!-- Sidebar Panel -->
-  <aside class="w-1/3 max-w-md bg-surface-card border-r border-border-input p-6 flex flex-col h-full overflow-y-auto shadow-2xl z-10">
-    <h1 class="text-h1 font-bold mb-6 text-text-primary">Prompt Engine</h1>
-    
-    <label class="block text-sm font-medium mb-2 text-gray-400" for="templateSelect">Select Template</label>
-    <select id="templateSelect" class="w-full bg-bg-base border border-border-input rounded-lg p-3 text-text-primary focus:outline-none mb-6 transition-colors">
-      <option value="" disabled selected>-- Choose a Template --</option>
-      <option value="Write a [Tone] email to [Audience] about [Topic].">Email Generator</option>
-      <option value="Act as a [Role] expert and explain [Concept] in simple terms.">Expert Explainer</option>
-      <option value="Create a comprehensive strategy for [Target Audience] focused on [Topic/Product].">Strategy Creator</option>
-    </select>
+<body>
 
-    <div id="dynamicInputs" class="flex flex-col gap-4 mb-6">
-      <!-- Dynamic inputs injected by script.js -->
-    </div>
-
-    <div class="mt-auto pt-6 border-t border-border-input">
-      <button id="generateBtn" disabled class="btn-primary w-full py-3 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-        Generate AI Response
-      </button>
-    </div>
-  </aside>
-
-  <!-- Main Workspace -->
-  <main class="flex-1 bg-bg-base p-8 overflow-y-auto relative">
-    <div class="max-w-4xl mx-auto flex flex-col gap-6 pb-20" id="responseFeed">
-      <!-- Welcome Empty State -->
-      <div class="text-center text-gray-400 mt-20" id="emptyState">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-        </svg>
-        <p class="text-lg font-medium">Your workspace is empty.</p>
-        <p class="text-sm">Select a template on the left and hit generate!</p>
+  <!-- Top Header Navigation -->
+  <header>
+    <div class="brand-container">
+      <div class="brand-logo">
+        <i class="fa-solid fa-wand-magic-sparkles"></i>
       </div>
-      <!-- Generated Cards inserted here -->
+      <div class="brand-text">
+        <h1>Smart Assistant AI <span class="brand-badge">PRO</span></h1>
+      </div>
     </div>
-  </main>
 
+    <div class="header-actions">
+      <!-- Theme Toggle Button -->
+      <button class="icon-btn" id="themeToggleBtn" title="Toggle Theme" aria-label="Toggle Theme">
+        <i class="fa-solid fa-moon"></i>
+      </button>
+
+      <!-- Clear All Feed Cards -->
+      <button class="icon-btn" id="clearFeedBtn" title="Clear All Feed" aria-label="Clear All Workspace Cards">
+        <i class="fa-solid fa-trash-can"></i>
+      </button>
+
+      <!-- User Profile Avatar -->
+      <div class="user-avatar" title="Active Workspace User">
+        AI
+      </div>
+    </div>
+  </header>
+
+  <!-- App Layout Container -->
+  <div class="app-layout">
+
+    <!-- LEFT SIDEBAR: PROMPT ENGINE -->
+    <aside>
+      <div class="sidebar-header">
+        <h2><i class="fa-solid fa-sliders text-brand"></i> Prompt Engine</h2>
+        <p>Select a template and configure dynamic parameters to generate optimized AI workflows.</p>
+      </div>
+
+      <div class="form-group">
+        <label for="templateSelect">Workflow Template</label>
+        <select id="templateSelect">
+          <option value="" disabled selected>-- Choose a Template --</option>
+          <option value="email">Email Generator</option>
+          <option value="explainer">Expert Explainer</option>
+          <option value="strategy">Strategy Creator</option>
+          <option value="code_review">Code Reviewer & Auditor</option>
+          <option value="social_media">Social Media Copywriter</option>
+        </select>
+      </div>
+
+      <!-- Dynamic Inputs injected by JavaScript -->
+      <div id="dynamicInputs" class="dynamic-inputs-container">
+        <div class="empty-dynamic-notice">
+          <i class="fa-solid fa-hand-pointer"></i>
+          Select a workflow template above to dynamically populate input variables.
+        </div>
+      </div>
+
+      <!-- Model Temperature Slider -->
+      <div class="form-group" style="margin-top: 1rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <label for="temperatureRange" style="margin-bottom: 0;">Creativity (Temperature)</label>
+          <span id="tempValue" style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--brand-primary); font-weight: 600;">0.7</span>
+        </div>
+        <input type="range" id="temperatureRange" min="0" max="1" step="0.1" value="0.7" style="padding: 0; cursor: pointer;">
+      </div>
+
+      <!-- Generate Button Container -->
+      <div class="sidebar-footer">
+        <button id="generateBtn" disabled class="btn-primary">
+          <i class="fa-solid fa-bolt"></i>
+          Generate AI Response
+        </button>
+      </div>
+    </aside>
+
+    <!-- RIGHT MAIN WORKSPACE -->
+    <main>
+      <!-- Search & Workspace Control Bar -->
+      <div class="workspace-toolbar">
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="searchInput" placeholder="Search saved prompts or outputs...">
+        </div>
+
+        <div class="filter-pills">
+          <button class="pill-btn active" data-filter="all">All</button>
+          <button class="pill-btn" data-filter="saved"><i class="fa-solid fa-bookmark"></i> Bookmarked</button>
+          <button class="pill-btn" data-filter="email">Emails</button>
+          <button class="pill-btn" data-filter="explainer">Explainers</button>
+          <button class="pill-btn" data-filter="strategy">Strategy</button>
+        </div>
+      </div>
+
+      <!-- Response Feed Stream -->
+      <div class="response-feed" id="responseFeed">
+        <!-- Empty Workspace Placeholder State -->
+        <div class="empty-state" id="emptyState">
+          <div class="empty-state-icon">
+            <i class="fa-solid fa-cubes-stacked"></i>
+          </div>
+          <h3>Workspace Ready</h3>
+          <p>Choose a prompt template from the sidebar on the left, fill out your custom parameters, and click <strong>Generate AI Response</strong> to produce output card modules.</p>
+        </div>
+      </div>
+    </main>
+
+  </div>
+
+  <!-- Dynamic Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- JavaScript Interaction Logic -->
   <script src="script.js"></script>
 </body>
 </html>
